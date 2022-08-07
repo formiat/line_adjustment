@@ -1,3 +1,5 @@
+use std::iter;
+
 /// No check of word length, i.e., `line_width` must be greater or equal to every word len.
 pub fn transform(input: &str, output_line_len: usize) -> String {
     let mut lines = Vec::with_capacity(input.chars().count() / 4);
@@ -10,14 +12,19 @@ pub fn transform(input: &str, output_line_len: usize) -> String {
         last_line_parts.push(first_word);
         last_line_len = last_line_parts[0].len();
 
-        for new_word in words_iter {
+        // `chain` and `iter::once(None)` are needed to create an extra loop iteration
+        for new_word in words_iter.map(Some).chain(iter::once(None)) {
             // In theory: `min_spaces_count = (last_line_parts.len() - 1) + 1`
             let min_spaces_count = last_line_parts.len();
-            let new_word_chars_count = new_word.chars().count();
+            let new_word_chars_count = new_word.map(|new_word| new_word.chars().count());
 
-            if last_line_len + min_spaces_count + new_word_chars_count > output_line_len {
-                // `last_line_parts` is full. There we transform it to a string.
+            let last_line_parts_is_full = new_word_chars_count.map(|new_word_chars_count| {
+                last_line_len + min_spaces_count + new_word_chars_count > output_line_len
+            });
 
+            let process_last_line_parts = new_word.is_none() || last_line_parts_is_full.unwrap();
+
+            if process_last_line_parts {
                 let space_chars_count = output_line_len - last_line_len;
                 println!("space_chars_count: {}", space_chars_count);
 
@@ -62,8 +69,10 @@ pub fn transform(input: &str, output_line_len: usize) -> String {
                 last_line_len = 0;
             }
 
-            last_line_parts.push(new_word);
-            last_line_len += new_word_chars_count;
+            if let Some(new_word) = new_word {
+                last_line_parts.push(new_word);
+                last_line_len += new_word_chars_count.unwrap();
+            }
         }
     }
 
