@@ -1,8 +1,8 @@
-// 100 spaces
-const SPACES: &str = "                                                                                                    ";
-
 /// No check of word length, i.e., `line_width` must be greater or equal to every word len.
 pub fn transform(input: &str, output_line_len: usize) -> String {
+    let spaces = vec![' '; output_line_len];
+    let spaces: String = spaces.into_iter().collect();
+
     let mut lines = Vec::with_capacity(input.chars().count() / 4);
     let mut words_iter = input.split(' ');
 
@@ -22,8 +22,12 @@ pub fn transform(input: &str, output_line_len: usize) -> String {
                 if last_line_len + min_spaces_count + new_word_chars_count > output_line_len {
                     // `last_line_parts` is full. There we transform it to a string.
 
-                    let new_line =
-                        process_last_line_parts(&last_line_parts, last_line_len, output_line_len);
+                    let new_line = process_last_line_parts(
+                        &last_line_parts,
+                        last_line_len,
+                        output_line_len,
+                        &spaces,
+                    );
                     lines.push(new_line);
 
                     last_line_parts.clear();
@@ -35,7 +39,7 @@ pub fn transform(input: &str, output_line_len: usize) -> String {
             }
 
             let new_line =
-                process_last_line_parts(&last_line_parts, last_line_len, output_line_len);
+                process_last_line_parts(&last_line_parts, last_line_len, output_line_len, &spaces);
             lines.push(new_line);
         }
     }
@@ -47,11 +51,12 @@ fn process_last_line_parts(
     last_line_parts: &[&str],
     last_line_len: usize,
     output_line_len: usize,
+    spaces: &str,
 ) -> String {
     let space_chars_count = output_line_len - last_line_len;
 
     if last_line_parts.len() == 1 {
-        let spaces = &SPACES[..space_chars_count];
+        let spaces = &spaces[..space_chars_count];
 
         format!("{}{}", last_line_parts[0], spaces)
     } else {
@@ -62,7 +67,7 @@ fn process_last_line_parts(
             space_chars_count / gaps_count,
             space_chars_count % gaps_count,
         );
-        let spaces = &SPACES[..space_chars_per_gap];
+        let spaces = &spaces[..space_chars_per_gap];
 
         let mut new_line = String::with_capacity(output_line_len);
 
