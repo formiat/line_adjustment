@@ -1,4 +1,4 @@
-/// No check of word length, i.e., `line_width` must be greater or equal to every word len.
+/// No check of word length, i.e., `output_line_len` must be greater or equal to every word len.
 pub fn transform(input: &str, output_line_len: usize) -> String {
     let spaces = vec![' '; output_line_len];
     let spaces: String = spaces.into_iter().collect();
@@ -102,9 +102,9 @@ mod tests {
              "Lorem  ipsum\ndolor    sit\namet        \nconsectetur \nadipiscing  \nelit  sed do\neiusmod     \ntempor      \nincididunt  \nut labore et\ndolore magna\naliqua      ")
         ];
 
-        for &(input, line_width, expected) in &test_cases {
+        for &(input, output_line_len, expected) in &test_cases {
             println!("input: '{:#?}'", input.split(' ').collect::<Vec<_>>());
-            let output = transform(input, line_width);
+            let output = transform(input, output_line_len);
             println!("output: '{:#?}'", output.split('\n').collect::<Vec<_>>());
             println!(
                 "expected: '{:#?}'",
